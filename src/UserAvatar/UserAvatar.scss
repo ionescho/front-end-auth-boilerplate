@@ -1,0 +1,20 @@
+.UserAvatar {
+  padding:20px;
+  text-align: center;
+  color: white;
+  display: inline-block;
+  border-top: 1px solid rgba(255,255,255,0.2);
+
+  .userImage img {
+  	height: 64px;
+  	width: 64px;
+  }
+
+  .logOutLink {
+  	padding-top: 10px;
+
+  	a {
+  		cursor: pointer;
+  	}
+  }
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from "react-router-dom"
+import authenticationService from "../_services/authentication.service"
 import './Login.scss';
 
 class Login extends React.Component {
@@ -16,9 +17,9 @@ class Login extends React.Component {
 	}
 
 	handleSubmit(event) {
-		event.preventDefault();
-		console.log(this.state);
-		return false;
+		authenticationService.login(this.state).then(() => {
+			window.location.reload();
+		});;
 	}
 
 	updateField(field, value) {

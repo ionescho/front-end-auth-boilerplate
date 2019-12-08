@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link, useHistory } from "react-router-dom"
+import { Link, withRouter } from "react-router-dom"
 import authenticationService from "../_services/authentication.service"
 
 class Signup extends React.Component {
 
-	constructor(props) {
-		super(props);
+	constructor(props, context) {
+		super(props, context);
 
 		this.state = {
 			name: "",
@@ -17,9 +17,8 @@ class Signup extends React.Component {
 	}
 
 	handleSubmit() {
-		let history = useHistory();
 		authenticationService.signup(this.state).then(() => {
-			history.push("/");
+			this.props.history.push("/");
 		});
 	}
 
@@ -45,4 +44,6 @@ class Signup extends React.Component {
 	}
 }
 
-export default Signup;
+const SignupWithRouter = withRouter(Signup)
+
+export default SignupWithRouter;

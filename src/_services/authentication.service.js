@@ -1,29 +1,23 @@
 import axios from "axios"
 import config from "../_config/config.service.js"
 
-var jwt, refreshToken;
-
 const authenticationService = {
     login,
     logout,
     signup,
     isLoggedIn,
-    currentUser: null
+    getUserCredentials
 };
 
 function signup(credentials) {
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new Promise((resolve, reject) => {
         axios.post(config.api + '/users', {
             email: credentials.email,
             name: credentials.name,
             password: credentials.password,
         })
         .then((response) => {
-            jwt = response.data.jwt;
-            refreshToken = response.data.refresh_token;
-            localStorage.setItem('jwt', this.jwt);
-            localStorage.setItem('refreshToken', this.refreshToken);
-            this.currentUser = Object.assign({}, credentials);
+            setUserDataToLocalStorage(response.data, credentials)
             resolve("success");
         })
         .catch((error) => {
@@ -34,16 +28,44 @@ function signup(credentials) {
     return promise;
 }
 
-function login(username, password) {
+function login(credentials) {
+    var promise = new Promise((resolve, reject) => {
+        axios.post(config.api + '/access-tokens', {
+            email: credentials.email,
+            password: credentials.password,
+        })
+        .then((response) => {
+            setUserDataToLocalStorage(response.data, credentials);
+            resolve("success");
+        })
+        .catch((error) => {
+            reject(error);
+        });        
+    });
 
+    return promise;
 }
 
 function logout() {
-    this.currentUser = null;
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('currentUser');
+}
+
+function setUserDataToLocalStorage(data, credentials) {
+    credentials = Object.assign({}, credentials);
+    localStorage.setItem('jwt', data.jwt);
+    localStorage.setItem('refreshToken', data.refresh_token);
+    delete credentials.password;
+    localStorage.setItem('currentUser', JSON.stringify(credentials));
 }
 
 function isLoggedIn() {
-    return this.currentUser ? true : false;
+    return localStorage.getItem('currentUser') ? true : false;
+}
+
+function getUserCredentials() {
+    return JSON.parse(localStorage.getItem('currentUser'));
 }
 
 export default authenticationService

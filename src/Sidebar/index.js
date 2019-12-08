@@ -1,7 +1,10 @@
 import React from 'react';
 import './Sidebar.scss';
+import UserAvatar from '../UserAvatar'
+import authenticationService from "../_services/authentication.service"
 
 function Sidebar() {
+  let isLogged = authenticationService.isLoggedIn();
   return (
     <div className="Sidebar">
       <div className="logo" >
@@ -10,6 +13,14 @@ function Sidebar() {
           The Idea Pool
         </div>
       </div>
+      {
+        isLogged
+        ?
+        <UserAvatar>
+        </UserAvatar>
+        :
+        ""
+      }
     </div>
   );
 }
