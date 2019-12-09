@@ -2,3 +2,8 @@
   font-family: SFNSDisplay;
   src: url(/fonts/SFNSDisplay.ttf);
 }
+
+body {
+	margin:0;
+	padding:0;
+}

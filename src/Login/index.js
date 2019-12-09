@@ -19,7 +19,7 @@ class Login extends React.Component {
 	handleSubmit(event) {
 		authenticationService.login(this.state).then(() => {
 			window.location.reload();
-		});;
+		});
 	}
 
 	updateField(field, value) {

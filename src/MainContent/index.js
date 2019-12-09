@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Login from '../Login'
 import Signup from '../Signup'
+import MyIdeas from '../MyIdeas'
 import authenticationService from "../_services/authentication.service"
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
 		  			isLogged ?
 			  		(<Switch>
 			  			<Route exact path="/">
-			  				Tralalalala
+			  				<MyIdeas />
 			  			</Route>
 			  		</Switch>)
 			  		:

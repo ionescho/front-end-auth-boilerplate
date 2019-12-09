@@ -7,24 +7,37 @@ class UserAvatar extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      user: {}
+    };
+
     this.handleLogOut = this.handleLogOut.bind(this);
+    this.getUserInfo();
   }
 
   handleLogOut() {
-    authenticationService.logout();
-    window.location.reload();
+    authenticationService.logout().then(() => {
+      window.location.reload();
+    });
+  }
+
+  getUserInfo() {
+    authenticationService.getCurrentUserInfo().then((user) => {
+      this.setState({
+        user: user
+      })
+    });
   }
 
   render() {
-    let userCredentials = authenticationService.getUserCredentials();
-    if (userCredentials) {
+    if (this.state.user.name) {
       return (
         <div className="UserAvatar">
           <div className="userImage" >
-            <img src='/images/User_ProfilePic@2x.png' />
+            <img src={ this.state.user.avatar_url || '/images/User_ProfilePic@2x.png' } />
           </div>
           <div className="userNameOrEmail">
-            { userCredentials.name || userCredentials.email }
+            { this.state.user.name }
           </div>
           <div className="logOutLink">
             <a onClick={this.handleLogOut}>Log out</a>

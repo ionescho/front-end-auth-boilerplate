@@ -1,0 +1,46 @@
+.ModalDialogBackground {
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.ModalDialog {
+		height: 250px;
+		width: 400px;
+		box-shadow: 0 0 20px 0;
+		border-radius: 3px;
+		position: relative;
+
+		h2 {
+			font-weight: normal;
+			text-align: center;
+		}
+		p {
+			text-align: center;
+			margin-top: 15%;
+		}
+		.ModalFooterLinks {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 20%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+
+			a {
+				font-weight: bold;
+				cursor: pointer;
+
+				&.OkButton {
+					color: rgba(0,168,67,1);
+				}			
+			}
+		}
+	}
+}

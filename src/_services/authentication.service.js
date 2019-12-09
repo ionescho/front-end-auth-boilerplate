@@ -1,12 +1,13 @@
 import axios from "axios"
 import config from "../_config/config.service.js"
+import jwtService from "./jwt.service.js"
 
 const authenticationService = {
     login,
     logout,
     signup,
     isLoggedIn,
-    getUserCredentials
+    getCurrentUserInfo
 };
 
 function signup(credentials) {
@@ -17,12 +18,12 @@ function signup(credentials) {
             password: credentials.password,
         })
         .then((response) => {
-            setUserDataToLocalStorage(response.data, credentials)
+            setUserDataToLocalStorage(response.data, credentials);
             resolve("success");
         })
         .catch((error) => {
             reject(error);
-        });        
+        });
     });
 
     return promise;
@@ -40,22 +41,42 @@ function login(credentials) {
         })
         .catch((error) => {
             reject(error);
-        });        
+        });
     });
 
     return promise;
 }
 
 function logout() {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('currentUser');
+    var promise = new Promise((resolve, reject) => {
+        axios.delete(config.api + '/access-tokens', {
+            data: {
+                refresh_token : localStorage.getItem('refreshToken')
+            },        
+            headers : {
+                'X-Access-Token': localStorage.getItem('jwt')
+            }
+        })
+        .then((response) => {
+            localStorage.removeItem('jwt');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+            resolve("success");
+        })
+        .catch((error) => {
+            jwtService.getRefreshAccessTokenAndRetryCall(this.logout.bind(this), resolve);
+        });
+    });
+
+    return promise;
 }
 
 function setUserDataToLocalStorage(data, credentials) {
+    if(data) {
+        localStorage.setItem('jwt', data.jwt);
+        localStorage.setItem('refreshToken', data.refresh_token);        
+    }
     credentials = Object.assign({}, credentials);
-    localStorage.setItem('jwt', data.jwt);
-    localStorage.setItem('refreshToken', data.refresh_token);
     delete credentials.password;
     localStorage.setItem('currentUser', JSON.stringify(credentials));
 }
@@ -64,8 +85,24 @@ function isLoggedIn() {
     return localStorage.getItem('currentUser') ? true : false;
 }
 
-function getUserCredentials() {
-    return JSON.parse(localStorage.getItem('currentUser'));
+function getCurrentUserInfo() {
+    var promise = new Promise((resolve, reject) => {
+        axios.get(config.api + '/me',
+        {
+            headers : {
+                'X-Access-Token': localStorage.getItem('jwt')
+            }
+        })
+        .then((response) => {
+            localStorage.setItem('currentUser', JSON.stringify(response.data));
+            resolve(response.data);
+        })
+        .catch((error) => {
+            jwtService.getRefreshAccessTokenAndRetryCall(this.getCurrentUserInfo.bind(this), resolve);
+        });
+    });
+
+    return promise;
 }
 
 export default authenticationService
