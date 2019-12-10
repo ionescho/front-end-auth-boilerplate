@@ -26,16 +26,20 @@ function addIdea(idea) {
             resolve(response.data);
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.addIdea.bind(this), resolve);
+        	if(error.response.status == 401) {
+            	jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.addIdea(idea); }, resolve);
+        	} else {
+        		reject(error);
+        	}
         });
 	});
 
 	return promise;
 }
 
-function deleteIdea(idea) {
+function deleteIdea(idea_id) {
 	var promise = new Promise((resolve, reject) => {
-        axios.delete(config.api + '/ideas/' + idea.id, {
+        axios.delete(config.api + '/ideas/' + idea_id, {
             data: {
                 refresh_token : localStorage.getItem('refreshToken')
             },        
@@ -47,7 +51,11 @@ function deleteIdea(idea) {
         	resolve("success");
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.deleteIdea.bind(this), resolve);
+        	if(error.response.status == 401) {
+            	jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.deleteIdea(idea_id); }, resolve);
+            } else {
+                reject(error);
+            }
         });
     });
 
@@ -68,10 +76,14 @@ function updateIdea(idea) {
 			}
 		})
         .then((response) => {
-            resolve("success");
+            resolve(response.data);
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.updateIdea.bind(this), resolve);
+        	if(error.response.status == 401) {
+            	jwtService.getRefreshAccessTokenAndRetryCall(() => { this.updateIdea(idea); }, resolve);
+            } else {
+                reject(error);
+            }
         });
 	});
 
@@ -90,7 +102,11 @@ function getIdeaPage() {
             resolve(response.data);
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.getIdeaPage.bind(this), resolve);
+        	if(error.response.status == 401) {
+            	jwtService.getRefreshAccessTokenAndRetryCall(this.getIdeaPage.bind(this), resolve);
+            } else {
+                reject(error);
+            }
         });
     });
 

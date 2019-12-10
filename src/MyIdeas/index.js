@@ -10,11 +10,12 @@ class MyIdeas extends React.Component {
 		this.state = {
 			ideas: [],
 			displayModal: false,
-			modalDeleteIndex: null
+			modalDeleteId: null
 		};
 
 		this.handlePlusClick = this.handlePlusClick.bind(this);
-		this.toggleEditing = this.toggleEditing.bind(this);
+		this.confirmEdit = this.confirmEdit.bind(this);
+		this.startEdit = this.startEdit.bind(this);
 		this.cancelEditing = this.cancelEditing.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.deleteRow = this.deleteRow.bind(this);
@@ -25,7 +26,7 @@ class MyIdeas extends React.Component {
 					return {
 						id: idea.id,
 						fields: idea,
-						temp_fields: idea,
+						temp_fields: Object.assign({}, idea),
 						editing: false,
 						just_added: false
 					};
@@ -35,44 +36,55 @@ class MyIdeas extends React.Component {
 	}
 
 	handlePlusClick(event) {
-		this.setState(state => {
-			state.ideas.unshift({
-				fields: {
-					content: "",
-					impact: 10,
-					ease: 10,
-					confidence: 10
-				},
-				temp_fields: {
-					content: "",
-					impact: 10,
-					ease: 10,
-					confidence: 10
-				},
-				editing: true,
-				just_added: true});
-			return state;
-		});
+		if(this.state.ideas.filter(idea => idea.just_added).length === 0) {
+			this.setState(state => {
+				state.ideas.unshift({
+					id: Math.random(),
+					fields: {
+						content: "",
+						impact: 10,
+						ease: 10,
+						confidence: 10
+					},
+					temp_fields: {
+						content: "",
+						impact: 10,
+						ease: 10,
+						confidence: 10
+					},
+					editing: true,
+					just_added: true});
+				return state;
+			});			
+		}
 	}
 
-	toggleEditing(index) {
-		if(this.state.ideas[index].just_added) {
-			ideaService.addIdea(this.state.ideas[index].temp_fields).then((data) => {
-				this.setState(state => {
-					console.log("addIdea", data);
-					state.ideas[index].id = data.id;
-					return state;
-				});
-			});
-		} else if(this.state.ideas[index].editing) {
-			ideaService.updateIdea(Object.assign({id: this.state.ideas[index].id},this.state.ideas[index].temp_fields));
-		}
-		this.setState(state => {
-			state.ideas[index].editing = !state.ideas[index].editing;
-			state.ideas[index].just_added = false;
-			if(!state.ideas[index].editing) {
+	confirmEdit(index) {
+		var setState = (data) => {
+			this.setState(state => {
+				state.ideas[index].id = data.id;
+				state.ideas[index].editing = false;
+				state.ideas[index].just_added = false;
 				state.ideas[index].fields = Object.assign({}, state.ideas[index].temp_fields);
-			}
+				return state;
+			});
+		};
+
+		if(this.state.ideas[index].just_added) {
+			ideaService.addIdea(this.state.ideas[index].temp_fields).then(setState, (error) => {
+				alert(error.response.data.reason);
+			});
+		} else {
+			ideaService.updateIdea(Object.assign({id: this.state.ideas[index].id},this.state.ideas[index].temp_fields)).then(setState, (error) => {
+				alert(error.response.data.reason);
+			});
+		}
+
+	}
+
+	startEdit(index) {
+		this.setState(state => {
+			state.ideas[index].editing = true;
 			return state;
 		});
 	}
@@ -91,28 +103,28 @@ class MyIdeas extends React.Component {
 		});
 	}
 
-	displayModal(index) {
-		this.setState({
-			displayModal: true,
-			modalDeleteIndex: index
-		});
-	}
-
 	closeModal() {
 		this.setState({
 			displayModal: false,
-			modalDeleteIndex: null
+			modalDeleteId: null
+		});
+	}
+
+	displayModal(id) {
+		this.setState({
+			displayModal: true,
+			modalDeleteId: id
 		});
 	}
 
 	deleteRow() {
-		ideaService.deleteIdea(Object.assign({id: this.state.ideas[this.state.modalDeleteIndex].id},this.state.ideas[this.state.modalDeleteIndex].fields)).then(() => {
+		ideaService.deleteIdea(this.state.modalDeleteId).then(() => {
 			this.setState(state => {
-				state.ideas.splice(this.state.modalDeleteIndex,1);
+				this.closeModal();
+				state.ideas = state.ideas.filter(idea => idea.id !== state.modalDeleteId);
 				return state;
 			});			
 		});
-		this.closeModal();
 	}
 
 	render() {
@@ -151,7 +163,7 @@ class MyIdeas extends React.Component {
 										<tbody>
 											{
 												this.state.ideas.map((idea, index) => {
-													return <tr key={index}>
+													return <tr key={idea.id}>
 															<td>
 																<div className="dot">
 																</div>
@@ -176,11 +188,11 @@ class MyIdeas extends React.Component {
 																	idea.editing
 																	?
 																	<> 
-																		<img onClick={() => this.toggleEditing(index)} src="/images/Confirm_V.png" alt=""/><img onClick={() => this.cancelEditing(index)} src="/images/Cancel_X.png" alt=""/>
+																		<img onClick={() => this.confirmEdit(index)} src="/images/Confirm_V.png" alt=""/><img onClick={() => this.cancelEditing(index)} src="/images/Cancel_X.png" alt=""/>
 																	</>
 																	:
 																	<> 
-																		<img onClick={() => this.toggleEditing(index)} src="/images/pen.png" alt=""/><img onClick={() => this.displayModal(index)} src="/images/bin.png" alt=""/>
+																		<img onClick={() => this.startEdit(index)} src="/images/pen.png" alt=""/><img onClick={() => this.displayModal(idea.id)} src="/images/bin.png" alt=""/>
 																	</>
 																}
 															</td>

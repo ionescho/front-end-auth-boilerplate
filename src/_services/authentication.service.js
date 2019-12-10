@@ -64,7 +64,11 @@ function logout() {
             resolve("success");
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.logout.bind(this), resolve);
+            if(error.response.status == 401) {
+                jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.logout(); }, resolve);
+            } else {
+                reject(error);
+            }
         });
     });
 
@@ -98,7 +102,11 @@ function getCurrentUserInfo() {
             resolve(response.data);
         })
         .catch((error) => {
-            jwtService.getRefreshAccessTokenAndRetryCall(this.getCurrentUserInfo.bind(this), resolve);
+            if(error.response.status == 401) {
+                jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.getCurrentUserInfo(); }, resolve);
+            } else {
+                reject(error);
+            }
         });
     });
 
