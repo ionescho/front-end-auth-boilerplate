@@ -66,22 +66,23 @@ class MyIdeas extends React.Component {
 	}
 
 	confirmEdit(index) {
-		var setState = (data) => {
-			this.setState(state => {
-				state.ideas[index].id = data.id;
-				state.ideas[index].editing = false;
-				state.ideas[index].just_added = false;
-				state.ideas[index].fields = Object.assign({}, state.ideas[index].temp_fields);
-				return state;
-			});
+		var success = (data) => {
+			// this.setState(state => {
+			// 	state.ideas[index].id = data.id;
+			// 	state.ideas[index].editing = false;
+			// 	state.ideas[index].just_added = false;
+			// 	state.ideas[index].fields = Object.assign({}, state.ideas[index].temp_fields);
+			// 	return state;
+			// });
+			this.getIdeaPage();
 		};
 
 		if(this.state.ideas[index].just_added) {
-			ideaService.addIdea(this.state.ideas[index].temp_fields).then(setState, (error) => {
+			ideaService.addIdea(this.state.ideas[index].temp_fields).then(success, (error) => {
 				alert(error.response.data.reason);
 			});
 		} else {
-			ideaService.updateIdea(Object.assign({id: this.state.ideas[index].id},this.state.ideas[index].temp_fields)).then(setState, (error) => {
+			ideaService.updateIdea(Object.assign({id: this.state.ideas[index].id},this.state.ideas[index].temp_fields)).then(success, (error) => {
 				alert(error.response.data.reason);
 			});
 		}
@@ -124,12 +125,13 @@ class MyIdeas extends React.Component {
 	}
 
 	deleteRow() {
+		this.closeModal();
 		ideaService.deleteIdea(this.state.modalDeleteId).then(() => {
-			this.setState(state => {
-				this.closeModal();
-				state.ideas = state.ideas.filter(idea => idea.id !== state.modalDeleteId);
-				return state;
-			});			
+			// this.setState(state => {
+			// 	state.ideas = state.ideas.filter(idea => idea.id !== state.modalDeleteId);
+			// 	return state;
+			// });
+			this.getIdeaPage();
 		});
 	}
 
