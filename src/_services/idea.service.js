@@ -80,7 +80,7 @@ function updateIdea(idea) {
         })
         .catch((error) => {
         	if(error.response.status == 401) {
-            	jwtService.getRefreshAccessTokenAndRetryCall(() => { this.updateIdea(idea); }, resolve);
+            	jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.updateIdea(idea); }, resolve);
             } else {
                 reject(error);
             }
@@ -90,9 +90,9 @@ function updateIdea(idea) {
 	return promise;
 }
 
-function getIdeaPage() {
+function getIdeaPage(page) {
 	var promise = new Promise((resolve, reject) => {
-        axios.get(config.api + '/ideas?page=1',
+        axios.get(config.api + '/ideas?page=' + page,
         {
             headers : {
                 'X-Access-Token': localStorage.getItem('jwt')
@@ -103,7 +103,7 @@ function getIdeaPage() {
         })
         .catch((error) => {
         	if(error.response.status == 401) {
-            	jwtService.getRefreshAccessTokenAndRetryCall(this.getIdeaPage.bind(this), resolve);
+            	jwtService.getRefreshAccessTokenAndRetryCall(() => { return this.getIdeaPage(page) }, resolve);
             } else {
                 reject(error);
             }

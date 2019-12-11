@@ -7,6 +7,10 @@ class Signup extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 
+		if(authenticationService.isLoggedIn()) {
+			this.props.history.push("/");			
+		}
+
 		this.state = {
 			name: "",
 			email: "",
@@ -19,6 +23,8 @@ class Signup extends React.Component {
 	handleSubmit() {
 		authenticationService.signup(this.state).then(() => {
 			this.props.history.push("/");
+		}, (error) => {
+			alert(error.response.data.reason);
 		});
 	}
 

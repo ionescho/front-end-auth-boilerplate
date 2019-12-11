@@ -1,40 +1,41 @@
 import React from 'react';
 import './MainContent.scss';
-import { 
-	BrowserRouter as Router,
+import {
 	Switch,
-	Route
+	Route,
+	withRouter
 } from "react-router-dom";
 import Login from '../Login'
 import Signup from '../Signup'
 import MyIdeas from '../MyIdeas'
 import authenticationService from "../_services/authentication.service"
 
-function App() {
-	let isLogged = authenticationService.isLoggedIn();
-	return (
-		<Router>
-		  	<div className="MainContent">
-		  		{
-		  			isLogged ?
-			  		(<Switch>
-			  			<Route exact path="/">
-			  				<MyIdeas />
-			  			</Route>
-			  		</Switch>)
-			  		:
-				  	(<Switch>
-				  		<Route exact path="/">
-				      		<Login />
-						</Route>
-				  		<Route path="/signup">
-				  			<Signup />
-				  		</Route>
-				  	</Switch>)
-				}
-		    </div>
-		</Router>
-	);
+class MainContent extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			isLoggedIn: authenticationService.isLoggedIn()
+		}
+
+		this.props.history.listen((location, action) => {
+			this.setState({
+				isLoggedIn: authenticationService.isLoggedIn()
+			});
+		});
+	}
+
+	render() {
+		return (
+			<div className="MainContent">
+				<Switch>
+					<Route exact path="/" component={this.state.isLoggedIn?MyIdeas:Login} />
+					<Route path="/signup" component={Signup} />
+				</Switch>
+			</div>
+		);
+	}
 }
 
-export default App;
+
+export default withRouter(MainContent);

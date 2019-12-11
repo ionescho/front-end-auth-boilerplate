@@ -10,17 +10,23 @@ class MyIdeas extends React.Component {
 		this.state = {
 			ideas: [],
 			displayModal: false,
-			modalDeleteId: null
+			modalDeleteId: null,
+			currentPage: 1
 		};
 
 		this.handlePlusClick = this.handlePlusClick.bind(this);
+		this.getIdeaPage = this.getIdeaPage.bind(this);
 		this.confirmEdit = this.confirmEdit.bind(this);
 		this.startEdit = this.startEdit.bind(this);
 		this.cancelEditing = this.cancelEditing.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.deleteRow = this.deleteRow.bind(this);
 
-		ideaService.getIdeaPage().then((data) => {
+		this.getIdeaPage();
+	}
+
+	getIdeaPage() {
+		ideaService.getIdeaPage(this.state.currentPage).then((data) => {
 			this.setState({
 				ideas: data.map((idea) => {
 					return {
@@ -164,39 +170,39 @@ class MyIdeas extends React.Component {
 											{
 												this.state.ideas.map((idea, index) => {
 													return <tr key={idea.id}>
-															<td>
-																<div className="dot">
-																</div>
-															</td>
-															<td>
-																{idea.editing ? <input type="text" defaultValue={idea.fields.content} className="IdeaNameInput" onChange={(event) => { this.updateField(index, "content", event.target.value) }}/> : <span>{idea.fields.content}</span>}
-															</td>
-															<td>
-																{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.impact} onChange={(event) => { this.updateField(index, "impact", event.target.value) }}/> : <div>{idea.fields.impact}</div>}
-															</td>
-															<td>
-																{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.ease} onChange={(event) => { this.updateField(index, "ease", event.target.value) }}/> : <div>{idea.fields.ease}</div>}
-															</td>
-															<td>
-																{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.confidence} onChange={(event) => { this.updateField(index, "confidence", event.target.value) }}/> : <div>{idea.fields.confidence}</div>}
-															</td>
-															<td>
-																{ ((parseInt(idea[idea.editing?'temp_fields':'fields'].impact) + parseInt(idea[idea.editing?'temp_fields':'fields'].ease) + parseInt(idea[idea.editing?'temp_fields':'fields'].confidence))/3).toFixed(1) }
-															</td>
-															<td>
-																{
-																	idea.editing
-																	?
-																	<> 
-																		<img onClick={() => this.confirmEdit(index)} src="/images/Confirm_V.png" alt=""/><img onClick={() => this.cancelEditing(index)} src="/images/Cancel_X.png" alt=""/>
-																	</>
-																	:
-																	<> 
-																		<img onClick={() => this.startEdit(index)} src="/images/pen.png" alt=""/><img onClick={() => this.displayModal(idea.id)} src="/images/bin.png" alt=""/>
-																	</>
-																}
-															</td>
-														</tr>
+														<td>
+															<div className="dot">
+															</div>
+														</td>
+														<td>
+															{idea.editing ? <input type="text" defaultValue={idea.fields.content} className="IdeaNameInput" onChange={(event) => { this.updateField(index, "content", event.target.value) }}/> : <span>{idea.fields.content}</span>}
+														</td>
+														<td>
+															{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.impact} onChange={(event) => { this.updateField(index, "impact", event.target.value) }}/> : <div>{idea.fields.impact}</div>}
+														</td>
+														<td>
+															{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.ease} onChange={(event) => { this.updateField(index, "ease", event.target.value) }}/> : <div>{idea.fields.ease}</div>}
+														</td>
+														<td>
+															{idea.editing ? <input type="number" min="1" max="10" defaultValue={idea.fields.confidence} onChange={(event) => { this.updateField(index, "confidence", event.target.value) }}/> : <div>{idea.fields.confidence}</div>}
+														</td>
+														<td>
+															{ ((parseInt(idea[idea.editing?'temp_fields':'fields'].impact) + parseInt(idea[idea.editing?'temp_fields':'fields'].ease) + parseInt(idea[idea.editing?'temp_fields':'fields'].confidence))/3).toFixed(1) }
+														</td>
+														<td>
+															{
+																idea.editing
+																?
+																<> 
+																	<img onClick={() => this.confirmEdit(index)} src="/images/Confirm_V.png" alt=""/><img onClick={() => this.cancelEditing(index)} src="/images/Cancel_X.png" alt=""/>
+																</>
+																:
+																<> 
+																	<img onClick={() => this.startEdit(index)} src="/images/pen.png" alt=""/><img onClick={() => this.displayModal(idea.id)} src="/images/bin.png" alt=""/>
+																</>
+															}
+														</td>
+													</tr>
 												})
 											}
 										</tbody>
